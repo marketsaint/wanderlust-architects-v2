@@ -1,0 +1,5 @@
+import { RegionHomePage } from '@/components/site/editorial-pages';
+
+export default function HomePage() {
+  return <RegionHomePage regionKey='india' />;
+}

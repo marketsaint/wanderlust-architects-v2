@@ -1,0 +1,17 @@
+node_modules/
+dist/
+
+devserver.log
+devserver.err
+
+.DS_Store
+Thumbs.db
+
+.vercel
+
+/test-results/
+/vite-dev*.log
+/gateway-*.png
+/india-home*.png
+/project-detail*.png
+/projects-archive*.png

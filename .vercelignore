@@ -1,0 +1,13 @@
+node_modules
+dist
+guidelines
+projects
+devserver.log
+devserver.err
+.git
+test-results
+vite-dev*.log
+gateway-*.png
+india-home*.png
+project-detail*.png
+projects-archive*.png
