@@ -1,5 +1,4 @@
 import { projectCategories, projects, type ProjectFilter, type ProjectRecord } from './projects';
-import { readPersistedRegion } from './site-region';
 
 export type SiteRegion = 'IN' | 'AE';
 
@@ -187,7 +186,6 @@ export const teamMembers: TeamMember[] = [
     image: siteImages.team[1],
     linkedin: 'https://www.linkedin.com/search/results/all/?keywords=Shreyeshi%20Sharma%20WA%20BIM%20Studio',
   },
-  { name: 'Uday Singh', role: 'Lead - Project Delivery', image: siteImages.team[2] },
 ];
 
 export const testimonials: Testimonial[] = [
@@ -307,11 +305,7 @@ export function getRegionFromPathname(pathname: string): SiteRegion {
     return 'AE';
   }
 
-  if (pathname.startsWith('/india')) {
-    return 'IN';
-  }
-
-  return readPersistedRegion() === 'dubai' ? 'AE' : 'IN';
+  return 'IN';
 }
 
 function normalizePhone(raw: string) {

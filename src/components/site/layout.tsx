@@ -1,14 +1,14 @@
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Menu, X } from 'lucide-react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { cn } from '@/app/components/ui/utils';
+import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { Link, Outlet, useLocation } from 'react-router';
 import { FloatingWhatsAppButton } from './floating-whatsapp-button';
 import { BrandLogo } from './brand-logo';
+import { SiteNavbar } from './site-navbar';
 import { Button, Container } from './ui';
 import { getContactByRegion, getRegionFromPathname, siteSocialLinks } from '@/lib/site-content';
-import { getRegionRoute, getRegionKeyFromPathname, persistSiteRegion, type SiteRegionKey } from '@/lib/site-region';
 
-const PRIMARY_LINKS = [
+const FOOTER_LINKS = [
+  { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'Studio' },
   { href: '/blog', label: 'Journal' },
@@ -22,31 +22,6 @@ function useScrollToTop() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [pathname]);
-}
-
-function NavLink({
-  href,
-  label,
-  active,
-  onClick,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <Link
-      to={href}
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] transition',
-        active ? 'bg-black text-white' : 'text-[#5e564c] hover:text-black',
-      )}
-    >
-      {label}
-    </Link>
-  );
 }
 
 function Footer() {
@@ -70,13 +45,7 @@ function Footer() {
           <div className='grid gap-3'>
             <p className='text-[10px] font-semibold uppercase tracking-[0.3em] text-[#786f64]'>Navigate</p>
             <div className='grid gap-2 text-sm leading-7 text-[#5d554b]'>
-              <Link to={getRegionRoute('india')} className='transition hover:text-black'>
-                India home
-              </Link>
-              <Link to={getRegionRoute('dubai')} className='transition hover:text-black'>
-                Dubai home
-              </Link>
-              {PRIMARY_LINKS.map((link) => (
+              {FOOTER_LINKS.map((link) => (
                 <Link key={link.href} to={link.href} className='transition hover:text-black'>
                   {link.label}
                 </Link>
@@ -136,145 +105,45 @@ function Footer() {
 export function SiteLayout({ children }: { children?: ReactNode }) {
   useScrollToTop();
   const pathname = useLocation().pathname;
-  const navigate = useNavigate();
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
   const isProjectsArchive = pathname === '/projects';
-  const [activeRegion, setActiveRegion] = useState<SiteRegionKey>(() => getRegionKeyFromPathname(pathname));
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const isCustomHome = pathname === '/';
 
   useEffect(() => {
-    setActiveRegion(getRegionKeyFromPathname(pathname));
-    setOpen(false);
-  }, [pathname]);
+    if (!headerRef.current) {
+      return;
+    }
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const updateHeight = () => {
+      setHeaderHeight(headerRef.current?.offsetHeight ?? 0);
+    };
+
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(headerRef.current);
+    window.addEventListener('resize', updateHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
   }, []);
 
   const contact = useMemo(() => getContactByRegion(getRegionFromPathname(pathname)), [pathname]);
-  const homeHref = getRegionRoute(activeRegion);
-
-  const isActiveLink = (href: string) => {
-    if (href === homeHref) {
-      return pathname === '/india' || pathname === '/dubai';
-    }
-
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
-
-  const handleRegionSelect = (regionKey: SiteRegionKey) => {
-    setActiveRegion(regionKey);
-    persistSiteRegion(regionKey);
-    navigate(getRegionRoute(regionKey));
-  };
+  const layoutStyle = useMemo(
+    () =>
+      ({
+        '--site-header-height': `${headerHeight}px`,
+      }) as CSSProperties,
+    [headerHeight],
+  );
 
   return (
-    <div className='relative min-h-screen bg-[#f3ece2] text-[#15120f]'>
-      {!isProjectsArchive ? <div className='site-grain pointer-events-none fixed inset-0 z-0 opacity-35' /> : null}
+    <div className='relative min-h-screen bg-[#f3ece2] text-[#15120f]' style={layoutStyle}>
+      {!isProjectsArchive && !isCustomHome ? <div className='site-grain pointer-events-none fixed inset-0 z-0 opacity-35' /> : null}
 
-      {!isProjectsArchive ? (
-        <header className='sticky top-0 z-50'>
-          <Container className='pt-4'>
-            <div
-              className={cn(
-                'border border-black/10 px-4 py-3 backdrop-blur-xl transition sm:px-5',
-                scrolled ? 'bg-[rgba(248,243,234,0.92)] shadow-[0_18px_54px_-40px_rgba(13,11,8,0.28)]' : 'bg-[rgba(248,243,234,0.74)]',
-              )}
-            >
-              <div className='flex items-center justify-between gap-4'>
-                <Link to={homeHref} className='min-w-0'>
-                  <BrandLogo className='justify-start gap-2.5' iconClassName='h-7 w-auto sm:h-8' textClassName='truncate text-[9px] tracking-[0.3em] sm:text-[10px]' />
-                </Link>
-
-                <nav className='hidden items-center gap-1 xl:flex' aria-label='Primary'>
-                  <NavLink href={homeHref} label='Home' active={isActiveLink(homeHref)} />
-                  {PRIMARY_LINKS.map((link) => (
-                    <NavLink key={link.href} href={link.href} label={link.label} active={isActiveLink(link.href)} />
-                  ))}
-                </nav>
-
-                <div className='hidden items-center gap-3 xl:flex'>
-                  <div className='flex items-center gap-1 border border-black/10 bg-white/78 px-1 py-1'>
-                    {(['india', 'dubai'] as SiteRegionKey[]).map((regionKey) => {
-                      const active = activeRegion === regionKey;
-
-                      return (
-                        <button
-                          key={regionKey}
-                          type='button'
-                          onClick={() => handleRegionSelect(regionKey)}
-                          className={cn(
-                            'px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] transition',
-                            active ? 'bg-black text-white' : 'text-[#5e564c] hover:text-black',
-                          )}
-                        >
-                          {regionKey === 'dubai' ? 'UAE' : 'India'}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <Button href='/contact'>start inquiry</Button>
-                </div>
-
-                <button
-                  type='button'
-                  className='inline-flex h-11 w-11 items-center justify-center border border-black/10 text-black xl:hidden'
-                  onClick={() => setOpen((current) => !current)}
-                  aria-expanded={open}
-                  aria-label='Toggle navigation'
-                >
-                  {open ? <X size={18} /> : <Menu size={18} />}
-                </button>
-              </div>
-
-              <div
-                className={cn(
-                  'grid overflow-hidden transition-[grid-template-rows,opacity,margin-top] duration-300 xl:hidden',
-                  open ? 'mt-4 opacity-100 [grid-template-rows:1fr]' : 'mt-0 opacity-0 [grid-template-rows:0fr]',
-                )}
-              >
-                <div className='overflow-hidden border-t border-black/10 pt-4'>
-                  <div className='grid gap-3'>
-                    <div className='flex items-center gap-1 border border-black/10 bg-white/78 px-1 py-1'>
-                      {(['india', 'dubai'] as SiteRegionKey[]).map((regionKey) => {
-                        const active = activeRegion === regionKey;
-
-                        return (
-                          <button
-                            key={regionKey}
-                            type='button'
-                            onClick={() => handleRegionSelect(regionKey)}
-                            className={cn(
-                              'flex-1 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] transition',
-                              active ? 'bg-black text-white' : 'text-[#5e564c] hover:text-black',
-                            )}
-                          >
-                            {regionKey === 'dubai' ? 'UAE' : 'India'}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className='grid gap-2'>
-                      <NavLink href={homeHref} label='Home' active={isActiveLink(homeHref)} onClick={() => setOpen(false)} />
-                      {PRIMARY_LINKS.map((link) => (
-                        <NavLink key={link.href} href={link.href} label={link.label} active={isActiveLink(link.href)} onClick={() => setOpen(false)} />
-                      ))}
-                    </div>
-
-                    <Button href='/contact' className='w-full' onClick={() => setOpen(false)}>
-                      start inquiry
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Container>
-        </header>
-      ) : null}
+      <SiteNavbar ref={headerRef} />
 
       <a
         href='#main-content'
@@ -287,8 +156,8 @@ export function SiteLayout({ children }: { children?: ReactNode }) {
         {children ?? <Outlet />}
       </main>
 
-      <FloatingWhatsAppButton href={contact.whatsapp} />
-      <Footer />
+      {!isProjectsArchive && !isCustomHome ? <FloatingWhatsAppButton href={contact.whatsapp} /> : null}
+      {!isProjectsArchive && !isCustomHome ? <Footer /> : null}
     </div>
   );
 }

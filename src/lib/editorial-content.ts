@@ -246,7 +246,7 @@ export function getProjectHighlights(project: ProjectRecord) {
     { label: 'category', value: project.category },
     { label: 'location', value: project.location },
     { label: 'area', value: project.area },
-    { label: 'year', value: String(project.year) },
+    { label: 'completion', value: `${project.year} · ${project.status}` },
   ];
 }
 

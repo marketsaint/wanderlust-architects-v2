@@ -425,8 +425,6 @@ export function RegionGatewayPage() {
   const projectRevealProgress = hasNextProject ? smoothstep((activeProjectProgress - 0.4) / 0.46) : 0;
   const currentProject = showcaseProjects[activeProjectIndex] ?? gatewayProject;
   const nextProject = showcaseProjects[Math.min(activeProjectIndex + 1, showcaseProjects.length - 1)] ?? currentProject;
-  const headerOnImage = clamp((showcaseVisibility - 0.08) / 0.44, 0, 1);
-  const isHeaderInverted = headerOnImage > 0.48;
   const initialWidth = clamp(viewport.width * 0.33, 320, 520);
   const initialHeight = initialWidth / 2.85;
   const initialLift = clamp(viewport.height * 0.28, 160, 240);
@@ -536,9 +534,6 @@ export function RegionGatewayPage() {
   const sectionStyle = {
     minHeight: `${Math.round(sectionHeight)}px`,
   } satisfies CSSProperties;
-  const headerIconSrc = isHeaderInverted ? '/branding/wanderlust_architects_logo-icon-White.png' : '/branding/wanderlust_architects_logo-icon-Black.png';
-  const navLinkClassName = cn('transition', isHeaderInverted ? 'hover:text-white' : 'hover:text-black');
-
   const renderProjectLayer = (project: ProjectRecord, side: 'left' | 'right', style: CSSProperties) => (
     <div key={`${project.slug}-${side}`} className='absolute inset-0 overflow-hidden' style={style}>
       {/* TODO: Replace these duplicated frames with distinct left/right project images once multi-image assets are available. */}
@@ -601,37 +596,6 @@ export function RegionGatewayPage() {
   return (
     <div className='min-h-screen bg-[#efe8de] text-[#15120f]'>
       <div className='site-grain pointer-events-none fixed inset-0 opacity-45' />
-      <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
-        <Container className='pointer-events-auto flex items-center justify-between py-5 sm:py-6'>
-          <Link to='/' className='shrink-0'>
-            <BrandLogo
-              className='gap-2.5'
-              iconClassName='h-9 w-auto transition-opacity duration-500 sm:h-10'
-              iconSrc={headerIconSrc}
-              textClassName={cn('text-[9px] tracking-[0.32em] transition-colors duration-500 sm:text-[10px]', isHeaderInverted ? 'text-white' : 'text-black')}
-            />
-          </Link>
-
-          <nav className={cn('hidden items-center gap-5 text-[10px] font-semibold uppercase tracking-[0.28em] transition-colors duration-500 lg:flex', isHeaderInverted ? 'text-white/72' : 'text-[#7c7367]')}>
-            <Link to='/projects' className={navLinkClassName}>
-              Projects
-            </Link>
-            <Link to='/about' className={navLinkClassName}>
-              Studio
-            </Link>
-            <Link to='/blog' className={navLinkClassName}>
-              Journal
-            </Link>
-            <Link to='/contact' className={navLinkClassName}>
-              Contact
-            </Link>
-            <a href={siteSocialLinks[0]?.href} target='_blank' rel='noreferrer' className={navLinkClassName}>
-              Instagram
-            </a>
-          </nav>
-        </Container>
-      </header>
-
       <section className='relative overflow-clip' style={sectionStyle}>
         <div className='sticky top-0 h-screen overflow-hidden bg-[#efe8de]'>
           <div className='absolute inset-0' style={ambientStyle}>
@@ -741,7 +705,7 @@ export function RegionGatewayPage() {
               When the portfolio ends, the brief can begin.
             </h2>
             <p className='max-w-2xl text-base leading-8 text-white/72 sm:text-lg'>
-              If one of these worlds feels close to your own ambition, move straight into the contact flow from Wanderlust Unified Vite. The full inquiry page, office details, and drafting form are all still there exactly as before.
+              If one of these worlds feels close to your own ambition, move directly into the contact flow and shape the project brief from there. The inquiry page, office details, and drafting form are all ready to continue the conversation.
             </p>
             <div className='flex flex-wrap gap-3'>
               <Button href='/contact' className='bg-white !text-black hover:border-white hover:bg-transparent hover:!text-white'>
@@ -761,10 +725,10 @@ export function RegionGatewayPage() {
               <article className='grid gap-5 border border-white/12 bg-white/6 p-6 backdrop-blur-sm'>
                 <div className='grid gap-2'>
                   <p className='text-[10px] font-semibold uppercase tracking-[0.3em] text-white/54'>What opens next</p>
-                  <h3 className='text-[2rem] leading-[0.92] text-white'>The full editorial inquiry experience from Wanderlust Unified Vite.</h3>
+                  <h3 className='text-[2rem] leading-[0.92] text-white'>A direct path into the studio contact and inquiry experience.</h3>
                 </div>
                 <p className='text-sm leading-8 text-white/68'>
-                  Continue into the exact contact route with service-focus selection, office details, and the same inquiry-brief drafting form you already had in the main site build.
+                  Continue into the dedicated contact route with service-focus selection, office details, and a structured inquiry brief form.
                 </p>
               </article>
             </Reveal>
@@ -773,9 +737,9 @@ export function RegionGatewayPage() {
               <Reveal delay={0.12}>
                 <article className='grid h-full gap-3 border border-white/12 bg-white/6 p-5 backdrop-blur-sm'>
                   <p className='text-[10px] font-semibold uppercase tracking-[0.3em] text-white/54'>Project pages</p>
-                  <h3 className='text-[1.7rem] leading-[0.94] text-white'>Every “Open project” link already goes to the full unified case-study page.</h3>
+                  <h3 className='text-[1.7rem] leading-[0.94] text-white'>Every open-project link leads into the full case-study page.</h3>
                   <p className='text-sm leading-7 text-white/68'>
-                    The showcase is only the front-door sequence. Each card still opens the complete editorial project page from the main Wanderlust site.
+                    The showcase is only the front-door sequence. Each card continues into the full editorial project page for that project.
                   </p>
                 </article>
               </Reveal>
@@ -1935,3 +1899,4 @@ export function NotFoundEditorialPage() {
     </div>
   );
 }
+

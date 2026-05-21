@@ -1,5 +1,5 @@
-import { RegionHomePage } from '@/components/site/editorial-pages';
+import { RegionGatewayPage } from '@/components/site/editorial-pages';
 
 export default function HomePage() {
-  return <RegionHomePage regionKey='india' />;
+  return <RegionGatewayPage />;
 }

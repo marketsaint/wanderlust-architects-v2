@@ -16,6 +16,7 @@ export interface ProjectRecord {
   location: string;
   area: string;
   year: number;
+  status: string;
   description: string;
   studio: string;
   image: string;
@@ -421,6 +422,7 @@ export const projects: ProjectRecord[] = rawProjects.map((project, index) => ({
   location: project.location,
   area: project.area,
   year: project.year,
+  status: 'Completed',
   description: project.description,
   studio: studioName,
   image: buildImagePath(project.imageName),
